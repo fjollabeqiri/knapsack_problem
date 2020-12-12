@@ -51,28 +51,15 @@ class Knapsack:
             items_in_copy = self.items_in.copy()
             items_out_copy = self.items_out.copy()
             items_removed = []
-
-            no_of_items_in = len(self.items_in)
-            rand_no_of_items_out = random.randint(1, no_of_items_in)
-            rand_items_out = random.sample(list(range(0, no_of_items_in)), rand_no_of_items_out)
-            rand_items_out.sort(reverse=True)
-            for rand in rand_items_out:
-                items_removed.append(items_in_copy[rand])
-                items_in_copy.pop(rand)
+            self.remove_items(items_in_copy, items_out_copy, items_removed)
 
             counter = 0
             while not feasible:
-                # add m random elements
                 if counter <= 10:
+                    # add m random elements
                     items_in_updated = items_in_copy.copy()
                     items_out_updated = items_out_copy.copy()
-                    no_of_items_out = len(self.items_out)
-                    rand_no_of_items_in = random.randint(1, no_of_items_out)
-                    rand_items_in = random.sample(list(range(0, no_of_items_out)), rand_no_of_items_in)
-                    rand_items_in.sort(reverse=True)
-                    for rand in rand_items_in:
-                        items_in_updated.append(items_out_copy[rand])
-                        items_out_updated.remove(items_out_copy[rand])
+                    self.add_items(items_out_copy, items_in_updated, items_out_updated)
                     feasible = self.check_feasibility(items_in_updated)
                     counter = counter + 1
                 else:
@@ -83,3 +70,21 @@ class Knapsack:
 
         self.items_in = items_in_updated
         self.items_out = items_out_updated
+
+    def remove_items(self, items_in_copy, items_out_copy, items_removed):
+        no_of_items_in = len(self.items_in)
+        rand_no_of_items_out = random.randint(1, no_of_items_in)
+        rand_items_out = random.sample(list(range(0, no_of_items_in)), rand_no_of_items_out)
+        rand_items_out.sort(reverse=True)
+        for rand in rand_items_out:
+            items_removed.append(items_in_copy[rand])
+            items_in_copy.pop(rand)
+
+    def add_items(self, items_out_copy, items_in_updated, items_out_updated):
+        no_of_items_out = len(self.items_out)
+        rand_no_of_items_in = random.randint(1, no_of_items_out)
+        rand_items_in = random.sample(list(range(0, no_of_items_out)), rand_no_of_items_in)
+        rand_items_in.sort(reverse=True)
+        for rand in rand_items_in:
+            items_in_updated.append(items_out_copy[rand])
+            items_out_updated.remove(items_out_copy[rand])
