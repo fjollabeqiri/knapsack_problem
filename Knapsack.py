@@ -7,7 +7,6 @@ class Item:
         self.id = item_id
         self.weight = weight
         self.value = value
-        self.ratio = value/weight
 
 
 class Knapsack:
