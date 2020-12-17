@@ -7,6 +7,7 @@ class Item:
         self.id = item_id
         self.weight = weight
         self.value = value
+        self.ratio = value/weight
 
 
 class Knapsack:
@@ -41,14 +42,14 @@ class Knapsack:
         items_in_knapsack_before = items_in_knapsack_before + "\tFitness: " + str(self.fitness())
         print(items_in_knapsack_before)
 
-    def remove_items(self, items_in_copy, items_removed):
+    def remove_items(self, items_in, items_removed):
         no_of_items_in = len(self.items_in)
         rand_no_of_items_out = random.randint(1, no_of_items_in - 1) #-1
         rand_items_out = random.sample(list(range(0, no_of_items_in)), rand_no_of_items_out)
         rand_items_out.sort(reverse=True)
         for rand in rand_items_out:
-            items_removed.append(items_in_copy[rand])
-            items_in_copy.pop(rand)
+            items_removed.append(items_in[rand])
+            items_in.pop(rand)
 
     def add_items(self, items_out_copy, items_in_updated, items_out_updated):
         no_of_items_out = len(self.items_out)
@@ -70,6 +71,7 @@ class Knapsack:
             items_in_copy = self.items_in.copy()
             items_out_copy = self.items_out.copy()
             items_removed = []
+
             self.remove_items(items_in_copy, items_removed)
 
             counter = 0
@@ -77,8 +79,10 @@ class Knapsack:
                 if counter <= 10:
                     # add m random elements
                     items_out_updated = items_out_copy.copy()
+
                     self.add_items(items_out_copy, items_in_copy, items_out_updated)
                     feasible = self.check_feasibility(items_in_copy)
+
                     counter = counter + 1
                 else:
                     break
@@ -90,33 +94,33 @@ class Knapsack:
         self.items_out = items_out_updated
 
     def perturb2(self):
-        feasible = False
-        while not feasible:
-            # remove one or more items
-            items_in = self.items_in.copy()
-            items_out = self.items_out.copy()
-            items_removed = []
-            self.remove_items(items_in, items_removed)
-            for item in items_removed:
-                items_out.append(item)
+        # remove one or more items
+        items_in = self.items_in.copy()
+        items_out = self.items_out.copy()
+        items_removed = []
+        self.remove_items(items_in, items_removed)
+        for item in items_removed:
+            items_out.append(item)
 
-            # greedy algorithm
-            counter = 0
-            while not feasible:
-                if counter <= 10:
-                    items_in_copy = items_in.copy()
-                    items_out_copy = items_out.copy()
+        # greedy algorithm
+        items_out_copy = items_out.copy()
+        i = 0
+        while i < 5:
+            if len(items_out) != 0:
+                next_item = self.select_next(items_out)
+                items_in.append(next_item)
+                items_out.remove(next_item)
+                items_out_copy.remove(next_item)
 
-                    next_item = self.select_next(items_out_copy)
-                    items_in_copy.append(next_item)
-                    items_out_copy.remove(next_item)
+                feasible = self.check_feasibility(items_in)
+                if not feasible:
+                    items_in.remove(next_item)
+                    items_out_copy.append(next_item)
+                i = i + 1
+            else:
+                break
 
-                    feasible = self.check_feasibility(items_in_copy)
-                    counter = counter + 1
-                else:
-                    break
-
-        self.items_in = items_in_copy
+        self.items_in = items_in
         self.items_out = items_out_copy
 
     def select_next(self, items_out):
